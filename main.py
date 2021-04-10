@@ -1,10 +1,18 @@
 import re
 import time
-from pathlib import Path
-from nltk.util import ngrams
 import locale
+import nltk
+from pathlib import Path
+from nltk.corpus import stopwords
+from nltk.util import ngrams
 
 locale.setlocale(locale.LC_ALL, 'tr_TR.UTF-8')
+
+nltk.download('stopwords')
+stopWords = set(stopwords.words('turkish'))
+
+print(stopWords)
+exit()
 
 
 def to_lower_case(word):
@@ -41,13 +49,17 @@ def prepare_output(file_name, n, words, output_dir):
 if __name__ == '__main__':
     # python 3
     total_n_s = 3
-    input_dir = './assets'
+    input_dir = './inputs'
     output_dir = './outputs'
+    with_stop_words = True
 
     allClearWords = []
     logs = []
     a_start = time.time()
     for path in Path(f'{input_dir}').rglob('*.txt'):
+        if path.name == ".gitkeep":
+            continue
+
         f_start = time.time()
         input_file_name = f'single-{path.parent.parent.name}-{path.parent.name}-{path.name}'
         print(f'reading {input_file_name}')
@@ -58,7 +70,7 @@ if __name__ == '__main__':
         clearWords = []
         for word in words:
             clearWord = to_lower_case(re.sub("[^\w\s]", "", word))
-            if len(clearWord) > 0:
+            if len(clearWord) > 0 and (not with_stop_words and clearWord not in stopWords):
                 clearWords.append(clearWord)
                 allClearWords.append(clearWord)
 
