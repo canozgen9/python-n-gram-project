@@ -29,8 +29,8 @@ def build_n_gram_map(n, words):
     return dict(sorted(map.items(), key=lambda item: item[1], reverse=True))
 
 
-def prepare_output(file_name, n, words):
-    outputFile = open(f'./outputs/{file_name}-{n}-gram.txt', 'w')
+def prepare_output(file_name, n, words, output_dir):
+    outputFile = open(f'{output_dir}/{file_name}-{n}-gram.txt', 'w')
     map = build_n_gram_map(n, words)
     for word in map:
         count = map[word]
@@ -39,10 +39,15 @@ def prepare_output(file_name, n, words):
 
 
 if __name__ == '__main__':
+    # python 3
+    total_n_s = 3
+    input_dir = './assets'
+    output_dir = './outputs'
+
     allClearWords = []
     logs = []
     a_start = time.time()
-    for path in Path('./assets').rglob('*.txt'):
+    for path in Path(f'{input_dir}').rglob('*.txt'):
         f_start = time.time()
         input_file_name = f'single-{path.parent.parent.name}-{path.parent.name}-{path.name}'
         print(f'reading {input_file_name}')
@@ -57,28 +62,33 @@ if __name__ == '__main__':
                 clearWords.append(clearWord)
                 allClearWords.append(clearWord)
 
-        for n in range(1, 3):
+        for n in range(1, total_n_s + 1):
             n_start = time.time()
-            prepare_output(input_file_name, n, clearWords)
+            prepare_output(input_file_name, n, clearWords, output_dir=output_dir)
             n_end = time.time()
             n_elapsed = n_end - n_start
             logs.append(f'{input_file_name}-{n}-gram: {n_elapsed}')
+            print(f'{input_file_name}-{n}-gram: {n_elapsed}')
 
         f_end = time.time()
         f_elapsed = f_end - f_start
         logs.append(f'{input_file_name}-total: {f_elapsed}')
-    for n in range(1, 3):
+        print(f'{input_file_name}-total: {f_elapsed}')
+    for n in range(1, total_n_s + 1):
+        print(f'starting all-{n}-gram')
         n_start = time.time()
-        prepare_output('all', n, allClearWords)
+        prepare_output('all', n, allClearWords, output_dir=output_dir)
         n_end = time.time()
         n_elapsed = n_end - n_start
         logs.append(f'all-{n}-gram: {n_elapsed}')
+        print(f'all-{n}-gram: {n_elapsed}')
 
     a_end = time.time()
     a_elapsed = a_end - a_start
     logs.append(f'all-total: {a_elapsed}')
+    print(f'all-total: {a_elapsed}')
 
-    logFile = open('./outputs/log.txt', "r+")
+    logFile = open(f'{output_dir}/log.txt', "w")
     for log in logs:
         logFile.write(f'{log}\n')
     logFile.close()
